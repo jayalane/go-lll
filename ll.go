@@ -1,6 +1,6 @@
 // -*- tab-width:2 -*-
 
-package main
+package lll
 
 import (
 	"github.com/lestrrat-go/file-rotatelogs"
