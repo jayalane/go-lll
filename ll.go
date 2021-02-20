@@ -17,7 +17,8 @@ const (
 	none
 )
 
-type lll struct {
+// Lll is a low level logger
+type Lll struct {
 	module string
 	level  int
 }
@@ -50,9 +51,9 @@ func initOnce() {
 
 }
 
-// lllSetLevel takes a low level logger and a level string and resets the log
+// SetLevel takes a low level logger and a level string and resets the log
 // level
-func lllSetLevel(res *lll, level string) {
+func SetLevel(res *Lll, level string) {
 	var theLev int
 	if level == "network" {
 		theLev = network
@@ -66,35 +67,35 @@ func lllSetLevel(res *lll, level string) {
 	res.level = theLev
 }
 
-// initLll takes a module name and a level string and returns a logger
-func initLll(modName string, level string) lll {
+// Init takes a module name and a level string and returns a logger
+func Init(modName string, level string) Lll {
 	initOnce()
 	if len(modName) > 50 {
-		log.Panic("init_lll called with giant module name", modName)
+		log.Panic("Init lll called with giant module name", modName)
 	}
 	res := lll{module: modName, level: all}
-	lllSetLevel(&res, level)
+	SetLevel(&res, level)
 	return res
 }
 
-// ln is Log Network - most volumunous
-func (ll lll) ln(ls ...interface{}) {
+// Ln is Log Network - most volumunous
+func (ll Lll) Ln(ls ...interface{}) {
 	if ll.level > network {
 		return
 	}
 	log.Println(ls...)
 }
 
-// ls is Log State - TCP reads/writes (but not what), accept/close
-func (ll lll) ls(ls ...interface{}) {
+// Ls is Log State - TCP reads/writes (but not what), accept/close
+func (ll Lll) Ls(ls ...interface{}) {
 	if ll.level > state {
 		return
 	}
 	log.Println(ls...)
 }
 
-// la is Log Always - Listens, serious errors, etc.
-func (ll lll) la(ls ...interface{}) {
+// La is Log Always - Listens, serious errors, etc.
+func (ll Lll) La(ls ...interface{}) {
 	if ll.level > all {
 		return
 	}
