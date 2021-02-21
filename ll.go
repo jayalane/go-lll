@@ -73,7 +73,7 @@ func Init(modName string, level string) Lll {
 	if len(modName) > 50 {
 		log.Panic("Init lll called with giant module name", modName)
 	}
-	res := lll{module: modName, level: all}
+	res := Lll{module: modName, level: all}
 	SetLevel(&res, level)
 	return res
 }
