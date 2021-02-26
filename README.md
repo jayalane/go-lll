@@ -8,9 +8,13 @@ I conventionally have "always" log for relatively lower volume things, config va
 "Network" log for logging the network traffic into my server and in response to the server request.  
 I might add a "Debug" for doing things like tricky logic errors, but actually testing is better for that.  
 
-It works like ml.La('Go Routines for kafka pub', numKafkaHandlers) (logged except when level is "none")
-              ml.Ls("Read timeout from", dstAddr)                  (logged when level is "always" or "state")
-              ml.Ln('Got a msg:', msg)                             (logged when level is "network" or "always" or "state")
+It works like:
+
+```
+      ml.La('Go Routines for kafka pub', numKafkaHandlers) (logged except when level is "none")
+      ml.Ls("Read timeout from", dstAddr)                  (logged when level is "always" or "state")
+      ml.Ln('Got a msg:', msg)                             (logged when level is "network" or "always" or "state")
+```
 
 THe output is a rotating log provided by github.com/lestrrat-go/file-rotatelogs
 
