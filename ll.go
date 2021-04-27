@@ -5,7 +5,9 @@ package lll
 import (
 	"github.com/lestrrat-go/file-rotatelogs"
 	"log"
+	"os"
 	"os/user"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -23,6 +25,9 @@ type Lll struct {
 	level  int
 }
 
+// Init is called once if you want a non-default
+// file name
+
 var initOnceDone int64
 
 // initOnce nees to be called to get log rotation going
@@ -30,8 +35,15 @@ func initOnce() {
 	if atomic.LoadInt64(&initOnceDone) == 1 {
 		return
 	}
-	atomic.StoreInt64(&initOnceDone, 1)
-	logPathTemplate := "/var/log/proxy.log.%Y%m%d"
+	atomic.StoreInt64(&initOnceDone, 1) // defer?  But rather miss some than
+	// have this run twice
+	binaryFilename, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	p := strings.Split(binaryFilename, "/")
+	item := p[len(p)-1]
+	logPathTemplate := "/var/log/" + item + ".log.%Y%m%d"
 	u, err := user.Current()
 	if err != nil {
 		log.Panic("Can't check user id")
@@ -48,7 +60,6 @@ func initOnce() {
 		log.Panic("Can't open rotating logs")
 	}
 	log.SetOutput(r1)
-
 }
 
 // SetLevel takes a low level logger and a level string and resets the log
