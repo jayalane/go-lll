@@ -4,6 +4,7 @@ package lll
 
 import (
 	"github.com/lestrrat-go/file-rotatelogs"
+	"io"
 	"log"
 	"os"
 	"os/user"
@@ -21,6 +22,7 @@ const (
 // Lll is a low level logger
 type Lll struct {
 	module string
+	log    *log.Logger
 	level  int
 }
 
@@ -28,6 +30,7 @@ type Lll struct {
 // file name
 
 var initOnceDone int64
+var theWriter io.Writer
 
 // initOnce nees to be called to get log rotation going
 func initOnce() {
@@ -51,14 +54,15 @@ func initOnce() {
 		logPathTemplate = "./proxy.log.%Y%m%d"
 	}
 	// init rotating logs
-	r1, err := rotatelogs.New(
+	theWriter, err = rotatelogs.New(
 		logPathTemplate,
 		rotatelogs.WithRotationSize(8*1024*1024),
 	)
 	if err != nil {
 		log.Panic("Can't open rotating logs")
 	}
-	log.SetOutput(r1)
+	log.Printf("Got a new writer %p\n", theWriter)
+	log.SetOutput(theWriter)
 }
 
 // SetLevel takes a low level logger and a level string and resets the log
@@ -83,7 +87,11 @@ func Init(modName string, level string) Lll {
 	if len(modName) > 50 {
 		log.Panic("Init lll called with giant module name", modName)
 	}
-	res := Lll{module: modName, level: all}
+	l := log.New(theWriter, modName, 0)
+	l.SetPrefix(modName + " ")
+	l.SetOutput(theWriter)
+	l.SetFlags(log.Ldate + log.Ltime + log.Lmsgprefix + log.Lmicroseconds)
+	res := Lll{module: modName, log: l, level: all}
 	SetLevel(&res, level)
 	return res
 }
@@ -93,7 +101,7 @@ func (ll Lll) Ln(ls ...interface{}) {
 	if ll.level > network {
 		return
 	}
-	log.Println(ls...)
+	ll.log.Println(ls...)
 }
 
 // Ls is Log State - TCP reads/writes (but not what), accept/close
@@ -101,7 +109,7 @@ func (ll Lll) Ls(ls ...interface{}) {
 	if ll.level > state {
 		return
 	}
-	log.Println(ls...)
+	ll.log.Println(ls...)
 }
 
 // La is Log Always - Listens, serious errors, etc.
@@ -109,5 +117,5 @@ func (ll Lll) La(ls ...interface{}) {
 	if ll.level > all {
 		return
 	}
-	log.Println(ls...)
+	ll.log.Println(ls...)
 }
