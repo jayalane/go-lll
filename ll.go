@@ -31,6 +31,7 @@ type Lll struct {
 
 var initOnceDone int64
 var theWriter io.Writer
+var theLogPath string
 
 // initOnce nees to be called to get log rotation going
 func initOnce() {
@@ -51,7 +52,7 @@ func initOnce() {
 		log.Panic("Can't check user id")
 	}
 	if u.Uid != "0" {
-		logPathTemplate = "./proxy.log.%Y%m%d"
+		logPathTemplate = theLogPath + "./proxy.log.%Y%m%d"
 	}
 	// init rotating logs
 	theWriter, err = rotatelogs.New(
@@ -63,6 +64,15 @@ func initOnce() {
 	}
 	log.Printf("Got a new writer %p\n", theWriter)
 	log.SetOutput(theWriter)
+}
+
+
+// SetLogPath sets the path for the template for non-root use.  It must be called before any Init()
+func SetLogPath(logPath string) {
+	if atomic.LoadInt64(&initOnceDone) == 1 {
+		panic("SetLogPath called after Init!")
+	}
+	theLogPath = logPath
 }
 
 // SetLevel takes a low level logger and a level string and resets the log
