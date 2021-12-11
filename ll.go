@@ -6,6 +6,7 @@ import (
 	"github.com/lestrrat-go/file-rotatelogs"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"os/user"
 	"strings"
@@ -24,6 +25,8 @@ type Lll struct {
 	module string
 	log    *log.Logger
 	level  int
+	writer *io.Writer
+	N      uint64 // should be a map but whatevs
 }
 
 // Init is called once if you want a non-default
@@ -54,18 +57,20 @@ func initOnce() {
 	if u.Uid != "0" {
 		logPathTemplate = theLogPath + "./proxy.log.%Y%m%d"
 	}
-	// init rotating logs
-	theWriter, err = rotatelogs.New(
-		logPathTemplate,
-		rotatelogs.WithRotationSize(8*1024*1024),
-	)
-	if err != nil {
-		log.Panic("Can't open rotating logs")
+
+	if theWriter == nil {
+		// init rotating logs
+		t, err := rotatelogs.New(
+			logPathTemplate,
+			rotatelogs.WithRotationSize(8*1024*1024),
+		)
+		if err != nil {
+			log.Panic("Can't open rotating logs")
+		}
+		theWriter = t
 	}
-	log.Printf("Got a new writer %p\n", theWriter)
 	log.SetOutput(theWriter)
 }
-
 
 // SetLogPath sets the path for the template for non-root use.  It must be called before any Init()
 func SetLogPath(logPath string) {
@@ -75,20 +80,10 @@ func SetLogPath(logPath string) {
 	theLogPath = logPath
 }
 
-// SetLevel takes a low level logger and a level string and resets the log
-// level
-func SetLevel(res *Lll, level string) {
-	var theLev int
-	if level == "network" {
-		theLev = network
-	} else if level == "none" {
-		theLev = none
-	} else if level == "state" {
-		theLev = state
-	} else {
-		theLev = all
-	}
-	res.level = theLev
+// SetWriter takes a writer and sets it up so the logger when inited
+// will use this writer level
+func SetWriter(writer io.Writer) {
+	theWriter = writer
 }
 
 // Init takes a module name and a level string and returns a logger
@@ -102,8 +97,24 @@ func Init(modName string, level string) Lll {
 	l.SetOutput(theWriter)
 	l.SetFlags(log.Ldate + log.Ltime + log.Lmsgprefix + log.Lmicroseconds)
 	res := Lll{module: modName, log: l, level: all}
-	SetLevel(&res, level)
+	res.SetLevel(level)
 	return res
+}
+
+// SetLevel takes a low level logger and a level string and resets the
+// log level
+func (ll Lll) SetLevel(level string) {
+	var theLev int
+	if level == "network" {
+		theLev = network
+	} else if level == "none" {
+		theLev = none
+	} else if level == "state" {
+		theLev = state
+	} else {
+		theLev = all
+	}
+	ll.level = theLev
 }
 
 // Ln is Log Network - most volumunous
@@ -128,4 +139,19 @@ func (ll Lll) La(ls ...interface{}) {
 		return
 	}
 	ll.log.Println(ls...)
+}
+
+// Ll is Log Lots ays - starts out logging all then 1/N then every 60,000th
+func (ll Lll) Ll(ls ...interface{}) {
+	if ll.level > all {
+		return
+	}
+	var numLoggeds uint64
+	atomic.AddUint64(&ll.N, 1)
+	numLoggeds = atomic.LoadUint64(&ll.N)
+
+	if numLoggeds%50000 == 0 ||
+		rand.Float64() < 1.0/float64(numLoggeds) {
+		ll.log.Println(ls...)
+	}
 }
