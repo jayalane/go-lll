@@ -25,7 +25,7 @@ type Lll struct {
 	module string
 	log    *log.Logger
 	level  int
-	writer *io.Writer
+	writer io.Writer
 	N      uint64 // should be a map but whatevs
 }
 
@@ -55,9 +55,12 @@ func initOnce() {
 		log.Panic("Can't check user id")
 	}
 	if u.Uid != "0" {
-		logPathTemplate = theLogPath + "./proxy.log.%Y%m%d"
+		if len(theLogPath) > 0 {
+			logPathTemplate = theLogPath + "/" + item + ".log.%Y%m%d"
+		} else {
+			logPathTemplate = "./" + item + ".log.%Y%m%d"
+		}
 	}
-
 	if theWriter == nil {
 		// init rotating logs
 		t, err := rotatelogs.New(
@@ -99,6 +102,11 @@ func Init(modName string, level string) Lll {
 	res := Lll{module: modName, log: l, level: all}
 	res.SetLevel(level)
 	return res
+}
+
+// SetLevel global needed for backward compatibility
+func SetLevel(l *Lll, level string) {
+	l.SetLevel(level)
 }
 
 // SetLevel takes a low level logger and a level string and resets the

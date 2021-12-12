@@ -18,3 +18,7 @@ It works like:
 
 THe output is a rotating log provided by github.com/lestrrat-go/file-rotatelogs
 
+Don't use 2fde954 or c6f4c4a or abb58ad. I broke
+SetLogPath and made an incompatible APi change.
+
+master is now good.  
