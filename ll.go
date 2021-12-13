@@ -34,7 +34,7 @@ type Lll struct {
 
 var initOnceDone int64
 var theWriter io.Writer
-var theLogPath string
+var theLogPath string = "."
 
 // initOnce nees to be called to get log rotation going
 func initOnce() {
@@ -55,11 +55,7 @@ func initOnce() {
 		log.Panic("Can't check user id")
 	}
 	if u.Uid != "0" {
-		if len(theLogPath) > 0 {
-			logPathTemplate = theLogPath + "/" + item + ".log.%Y%m%d"
-		} else {
-			logPathTemplate = "./" + item + ".log.%Y%m%d"
-		}
+		logPathTemplate = theLogPath + "/" + item + ".log.%Y%m%d"
 	}
 	if theWriter == nil {
 		// init rotating logs
