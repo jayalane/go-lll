@@ -17,10 +17,11 @@ func TestLa(t *testing.T) {
 	var buffer = new(bytes.Buffer)
 	var modName = "TEST"
 	var msgString = "hi"
+	var numLogs = 1000
 
 	SetWriter(buffer)
 	ml = Init("TEST", "debug")
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < numLogs; i++ {
 		ml.La("hi" + fmt.Sprint(i))
 	}
 	time.Sleep(1100 * time.Millisecond)
@@ -48,6 +49,9 @@ func TestLa(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
+	if i != numLogs {
+		t.Fatal("Not enough logs got", i, "wanted", numLogs)
+	}
 	// all good
 }
 
@@ -56,12 +60,13 @@ func TestLl(t *testing.T) {
 	var ml Lll
 	var buffer = new(bytes.Buffer)
 	var modName = "TEST"
-	var msgString = "hi"
+	var msgString = "yo"
+	var numLogs = 1000
 
 	SetWriter(buffer)
 	ml = Init("TEST", "debug")
 	for i := 0; i < 1000; i++ {
-		ml.Ll("hi" + fmt.Sprint(i))
+		ml.Ll(msgString + fmt.Sprint(i))
 	}
 	time.Sleep(1100 * time.Millisecond)
 	scanner := bufio.NewScanner(buffer)
@@ -77,7 +82,7 @@ func TestLl(t *testing.T) {
 			t.Fatal("Wrong module", l, sections[2])
 			return
 		}
-		if !(msgString+fmt.Sprint(i) == sections[3]) {
+		if !(msgString == sections[3][0:len(msgString)]) {
 			t.Fatal("Wrong log msg", l, sections[3])
 			return
 		}
@@ -87,6 +92,9 @@ func TestLl(t *testing.T) {
 	if err := scanner.Err(); err != nil {
 		t.Fatal(err)
 		return
+	}
+	if i > numLogs/2 {
+		t.Fatal("Too many logs got", i, "wanted a small fraction of", numLogs)
 	}
 	// all good
 }

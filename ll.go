@@ -146,14 +146,12 @@ func (ll Lll) La(ls ...interface{}) {
 }
 
 // Ll is Log Lots ays - starts out logging all then 1/N then every 60,000th
-func (ll Lll) Ll(ls ...interface{}) {
+func (ll *Lll) Ll(ls ...interface{}) {
 	if ll.level > all {
 		return
 	}
-	var numLoggeds uint64
-	atomic.AddUint64(&ll.N, 1)
-	numLoggeds = atomic.LoadUint64(&ll.N)
-
+	numLoggeds := atomic.AddUint64(&ll.N, 1)
+	atomic.StoreUint64(&ll.N, numLoggeds)
 	if numLoggeds%50000 == 0 ||
 		rand.Float64() < 1.0/float64(numLoggeds) {
 		ll.log.Println(ls...)
