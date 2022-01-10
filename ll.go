@@ -26,7 +26,6 @@ type Lll struct {
 	module string
 	log    *log.Logger
 	level  int
-	writer io.Writer
 	N      uint64 // should be a map but whatevs
 }
 
@@ -108,7 +107,7 @@ func SetLevel(l *Lll, level string) {
 
 // SetLevel takes a low level logger and a level string and resets the
 // log level
-func (ll Lll) SetLevel(level string) {
+func (ll *Lll) SetLevel(level string) {
 	var theLev int
 	if level == "network" {
 		theLev = network
