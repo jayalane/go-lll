@@ -153,7 +153,7 @@ func (ll *Lll) Ll(ls ...interface{}) {
 	numLoggeds := atomic.AddUint64(&ll.N, 1)
 	atomic.StoreUint64(&ll.N, numLoggeds)
 	if numLoggeds%50000 == 0 ||
-		rand.Float64() < 1.0/float64(math.Pow(math.Log(float64(numLoggeds)), 2)) {
+		rand.Float64() < 1.0/float64(math.Pow(math.Log(1+float64(numLoggeds)), 2)) {
 		ll.log.Println(ls...)
 	}
 }

@@ -65,7 +65,7 @@ func TestLl(t *testing.T) {
 
 	SetWriter(buffer)
 	ml = Init("TEST", "debug")
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < numLogs; i++ {
 		ml.Ll(msgString + fmt.Sprint(i))
 	}
 	time.Sleep(1100 * time.Millisecond)
@@ -96,5 +96,6 @@ func TestLl(t *testing.T) {
 	if i > numLogs/2 {
 		t.Fatal("Too many logs got", i, "wanted a small fraction of", numLogs)
 	}
+        t.Log("Got", i);
 	// all good
 }
