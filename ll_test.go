@@ -96,6 +96,6 @@ func TestLl(t *testing.T) {
 	if i > numLogs/2 {
 		t.Fatal("Too many logs got", i, "wanted a small fraction of", numLogs)
 	}
-        t.Log("Got", i);
+	t.Log("Got", i)
 	// all good
 }
