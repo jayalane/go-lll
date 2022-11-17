@@ -1,11 +1,12 @@
 module github.com/jayalane/go-lll
 
-go 1.16
+go 1.19
+
+require github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 
 require (
-	github.com/jonboulle/clockwork v0.2.2 // indirect
-	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
-	github.com/lestrrat-go/strftime v1.0.5 // indirect
+	github.com/jonboulle/clockwork v0.3.0 // indirect
+	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
 )
