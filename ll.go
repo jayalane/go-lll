@@ -105,6 +105,11 @@ func SetLevel(l *Lll, level string) {
 	l.SetLevel(level)
 }
 
+// GetLevel needed for go-globals tests
+func GetLevel(l *Lll, level string) int {
+	return l.level
+}
+
 // SetLevel takes a low level logger and a level string and resets the
 // log level
 func (ll *Lll) SetLevel(level string) {
