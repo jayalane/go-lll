@@ -106,7 +106,7 @@ func SetLevel(l *Lll, level string) {
 }
 
 // GetLevel needed for go-globals tests
-func GetLevel(l *Lll, level string) int {
+func GetLevel(l *Lll) int {
 	return l.level
 }
 
