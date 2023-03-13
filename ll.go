@@ -25,8 +25,8 @@ const (
 type Lll struct {
 	module string
 	log    *log.Logger
-	level  int
 	N      uint64 // should be a map but whatevs
+	level  int32
 }
 
 // Init is called once if you want a non-default
@@ -107,13 +107,18 @@ func SetLevel(l *Lll, level string) {
 
 // GetLevel needed for go-globals tests
 func GetLevel(l *Lll) int {
-	return l.level
+	return int(atomic.LoadInt32(&l.level))
+}
+
+// GetLevel returns the level for this specific logger instance
+func (ll *Lll) GetLevel() int {
+	return int(atomic.LoadInt32(&ll.level))
 }
 
 // SetLevel takes a low level logger and a level string and resets the
 // log level
 func (ll *Lll) SetLevel(level string) {
-	var theLev int
+	var theLev int32
 	if level == "network" {
 		theLev = network
 	} else if level == "none" {
@@ -123,7 +128,7 @@ func (ll *Lll) SetLevel(level string) {
 	} else {
 		theLev = all
 	}
-	ll.level = theLev
+	atomic.StoreInt32(&ll.level, theLev)
 }
 
 // Ln is Log Network - most volumunous
