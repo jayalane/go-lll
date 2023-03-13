@@ -38,10 +38,10 @@ var theLogPath string = "."
 
 // initOnce nees to be called to get log rotation going
 func initOnce() {
-	if atomic.LoadInt64(&initOnceDone) == 1 {
+	swapped := atomic.CompareAndSwapInt64(&initOnceDone, 0, 1)
+	if swapped {
 		return
 	}
-	atomic.StoreInt64(&initOnceDone, 1) // defer?  But rather miss some than
 	// have this run twice
 	binaryFilename, err := os.Executable()
 	if err != nil {
