@@ -25,9 +25,9 @@ const (
 // Lll is a low level logger
 type Lll struct {
 	module string
+	n      uint64 // should be a map but whatevs
 	log    *log.Logger
-	N      uint64 // should be a map but whatevs
-	level  int32
+	level  int64
 }
 
 // Init is called once if you want a non-default
@@ -108,18 +108,18 @@ func SetLevel(l *Lll, level string) {
 
 // GetLevel needed for go-globals tests
 func GetLevel(l *Lll) int {
-	return int(atomic.LoadInt32(&l.level))
+	return int(atomic.LoadInt64(&l.level))
 }
 
 // GetLevel returns the level for this specific logger instance
 func (ll *Lll) GetLevel() int {
-	return int(atomic.LoadInt32(&ll.level))
+	return int(atomic.LoadInt64(&ll.level))
 }
 
 // SetLevel takes a low level logger and a level string and resets the
 // log level
 func (ll *Lll) SetLevel(level string) {
-	var theLev int32
+	var theLev int64
 	if level == "network" {
 		theLev = network
 	} else if level == "none" {
@@ -129,13 +129,13 @@ func (ll *Lll) SetLevel(level string) {
 	} else {
 		theLev = all
 	}
-	atomic.StoreInt32(&ll.level, theLev)
-	fmt.Println("Set level to", ll.level, theLev)
+	atomic.StoreInt64(&ll.level, theLev)
+	fmt.Println("Set level to", atomic.LoadInt64(&ll.level), theLev)
 }
 
 // Ln is Log Network - most volumunous
 func (ll Lll) Ln(ls ...interface{}) {
-	if ll.level > network {
+	if atomic.LoadInt64(&ll.level) > network {
 		return
 	}
 	ll.log.Println(ls...)
@@ -143,7 +143,7 @@ func (ll Lll) Ln(ls ...interface{}) {
 
 // Ls is Log State - TCP reads/writes (but not what), accept/close
 func (ll Lll) Ls(ls ...interface{}) {
-	if ll.level > state {
+	if atomic.LoadInt64(&ll.level) > state {
 		return
 	}
 	ll.log.Println(ls...)
@@ -151,7 +151,7 @@ func (ll Lll) Ls(ls ...interface{}) {
 
 // La is Log Always - Listens, serious errors, etc.
 func (ll Lll) La(ls ...interface{}) {
-	if ll.level > all {
+	if atomic.LoadInt64(&ll.level) > all {
 		return
 	}
 	ll.log.Println(ls...)
@@ -159,11 +159,11 @@ func (ll Lll) La(ls ...interface{}) {
 
 // Ll is Log Lots ays - starts out logging all then 1/N then every 60,000th
 func (ll *Lll) Ll(ls ...interface{}) {
-	if ll.level > all {
+	if atomic.LoadInt64(&ll.level) > all {
 		return
 	}
-	numLoggeds := atomic.AddUint64(&ll.N, 1)
-	atomic.StoreUint64(&ll.N, numLoggeds)
+	numLoggeds := atomic.AddUint64(&ll.n, 1)
+
 	if numLoggeds%50000 == 0 ||
 		rand.Float64() < 1.0/float64(math.Pow(math.Log(1+float64(numLoggeds)), 2)) {
 		ll.log.Println(ls...)
