@@ -3,6 +3,7 @@
 package lll
 
 import (
+	"fmt"
 	"github.com/lestrrat-go/file-rotatelogs"
 	"io"
 	"log"
@@ -129,6 +130,7 @@ func (ll *Lll) SetLevel(level string) {
 		theLev = all
 	}
 	atomic.StoreInt32(&ll.level, theLev)
+	fmt.Println("Set level to", ll.level, theLev)
 }
 
 // Ln is Log Network - most volumunous

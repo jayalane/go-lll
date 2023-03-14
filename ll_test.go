@@ -7,14 +7,37 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
 
+// Buffer type from stackoverflow for safe concurrency
+type Buffer struct {
+	b bytes.Buffer
+	m sync.Mutex
+}
+
+func (b *Buffer) Read(p []byte) (n int, err error) {
+	b.m.Lock()
+	defer b.m.Unlock()
+	return b.b.Read(p)
+}
+func (b *Buffer) Write(p []byte) (n int, err error) {
+	b.m.Lock()
+	defer b.m.Unlock()
+	return b.b.Write(p)
+}
+func (b *Buffer) String() string {
+	b.m.Lock()
+	defer b.m.Unlock()
+	return b.b.String()
+}
+
 func TestLa(t *testing.T) {
 
 	var ml Lll
-	var buffer = new(bytes.Buffer)
+	var buffer = new(Buffer)
 	var modName = "TEST"
 	var msgString = "hi"
 	var numLogs = 1000
@@ -66,13 +89,21 @@ func TestLl(t *testing.T) {
 	SetWriter(buffer)
 	ml = Init("TEST", "debug")
 	for i := 0; i < numLogs; i++ {
-		ml.Ll(msgString + fmt.Sprint(i))
+		go func(j int) {
+			ml.Ll(msgString + fmt.Sprint(j))
+		}(i)
+	}
+	for i := 0; i < numLogs; i++ {
+		go func(j int) {
+			ml.Ll(msgString + fmt.Sprint(j))
+		}(i)
 	}
 	time.Sleep(1100 * time.Millisecond)
 	scanner := bufio.NewScanner(buffer)
 	i := 0
 	for scanner.Scan() {
 		l := scanner.Text()
+		fmt.Println("Got a line:", l)
 		sections := strings.Split(l, " ")
 		if len(sections) != 4 {
 			t.Fatal("Wrong format", l, len(sections))
@@ -93,6 +124,7 @@ func TestLl(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
+
 	if i > numLogs/2 {
 		t.Fatal("Too many logs got", i, "wanted a small fraction of", numLogs)
 	}
