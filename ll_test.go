@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"math/rand"
 	"strings"
 	"sync"
 	"testing"
@@ -83,19 +84,23 @@ func TestLl(t *testing.T) {
 	var ml *Lll
 	var buffer = new(Buffer)
 	var modName = "TEST"
-	var msgString = "yo"
-	var numLogs = 1000
-
+	var msgString = "yo_this_is_a_longer_string_maybe_some_memory_thing"
+	var numLogs = 10000
 	SetWriter(buffer)
 	ml = Init("TEST", "debug")
+	ml.SetLevel("debug")
 	for i := 0; i < numLogs; i++ {
 		go func(j int) {
+			time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
 			ml.Ll(msgString + fmt.Sprint(j))
+			ml.Ln(msgString + fmt.Sprint(j) + "whatevs")
 		}(i)
 	}
+	ml.SetLevel("all")
 	for i := 0; i < numLogs; i++ {
 		go func(j int) {
-			ml.Ll(msgString + fmt.Sprint(j))
+			ml.Ll(msgString + fmt.Sprint(j) + "2")
+			ml.Ln(msgString + fmt.Sprint(j) + "whatevs2")
 		}(i)
 	}
 	time.Sleep(1100 * time.Millisecond)
