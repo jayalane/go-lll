@@ -134,7 +134,7 @@ func (ll *Lll) SetLevel(level string) {
 }
 
 // Ln is Log Network - most volumunous
-func (ll Lll) Ln(ls ...interface{}) {
+func (ll *Lll) Ln(ls ...interface{}) {
 	if atomic.LoadInt64(&ll.level) > network {
 		return
 	}
@@ -142,7 +142,7 @@ func (ll Lll) Ln(ls ...interface{}) {
 }
 
 // Ls is Log State - TCP reads/writes (but not what), accept/close
-func (ll Lll) Ls(ls ...interface{}) {
+func (ll *Lll) Ls(ls ...interface{}) {
 	if atomic.LoadInt64(&ll.level) > state {
 		return
 	}
@@ -150,7 +150,7 @@ func (ll Lll) Ls(ls ...interface{}) {
 }
 
 // La is Log Always - Listens, serious errors, etc.
-func (ll Lll) La(ls ...interface{}) {
+func (ll *Lll) La(ls ...interface{}) {
 	if atomic.LoadInt64(&ll.level) > all {
 		return
 	}
