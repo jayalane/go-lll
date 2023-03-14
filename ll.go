@@ -87,7 +87,7 @@ func SetWriter(writer io.Writer) {
 }
 
 // Init takes a module name and a level string and returns a logger
-func Init(modName string, level string) Lll {
+func Init(modName string, level string) *Lll {
 	initOnce()
 	if len(modName) > 50 {
 		log.Panic("Init lll called with giant module name", modName)
@@ -98,7 +98,7 @@ func Init(modName string, level string) Lll {
 	l.SetFlags(log.Ldate + log.Ltime + log.Lmsgprefix + log.Lmicroseconds)
 	res := Lll{module: modName, log: l, level: all}
 	res.SetLevel(level)
-	return res
+	return &res
 }
 
 // SetLevel global needed for backward compatibility

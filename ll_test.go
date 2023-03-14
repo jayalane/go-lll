@@ -36,7 +36,7 @@ func (b *Buffer) String() string {
 
 func TestLa(t *testing.T) {
 
-	var ml Lll
+	var ml *Lll
 	var buffer = new(Buffer)
 	var modName = "TEST"
 	var msgString = "hi"
@@ -80,8 +80,8 @@ func TestLa(t *testing.T) {
 
 func TestLl(t *testing.T) {
 
-	var ml Lll
-	var buffer = new(bytes.Buffer)
+	var ml *Lll
+	var buffer = new(Buffer)
 	var modName = "TEST"
 	var msgString = "yo"
 	var numLogs = 1000
