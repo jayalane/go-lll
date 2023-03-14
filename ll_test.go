@@ -84,11 +84,11 @@ func TestLl(t *testing.T) {
 	var ml *Lll
 	var buffer = new(Buffer)
 	var modName = "TEST"
-	var msgString = "yo_this_is_a_longer_string_maybe_some_memory_thing"
+	var msgString = "yo_this_is_a_longer_string_maybe_some_memory_thing_z"
 	var numLogs = 10000
 	SetWriter(buffer)
 	ml = Init("TEST", "debug")
-	ml.SetLevel("debug")
+	ml.SetLevel("network")
 	for i := 0; i < numLogs; i++ {
 		go func(j int) {
 			time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
