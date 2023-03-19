@@ -40,7 +40,7 @@ var theLogPath string = "."
 // initOnce nees to be called to get log rotation going
 func initOnce() {
 	swapped := atomic.CompareAndSwapInt64(&initOnceDone, 0, 1)
-	if swapped {
+	if !swapped {
 		return
 	}
 	// have this run twice
