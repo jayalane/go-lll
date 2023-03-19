@@ -35,6 +35,13 @@ func (b *Buffer) String() string {
 	return b.b.String()
 }
 
+func TestNormal(t *testing.T) {
+	var ml *Lll
+	SetLogPath("/tmp")
+	ml = Init("TEST", "network")
+	ml.La("hi there see if it works")
+}
+
 func TestLa(t *testing.T) {
 
 	var ml *Lll
