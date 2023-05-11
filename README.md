@@ -21,4 +21,8 @@ THe output is a rotating log provided by github.com/lestrrat-go/file-rotatelogs
 Don't use 2fde954 or c6f4c4a or abb58ad. I broke
 SetLogPath and made an incompatible APi change.
 
-master is now good.  
+master is now good.
+
+There is a companion module, go-lll-loggers, that provides
+implmentations of fasthttp logger and gRPC logger that trickles down
+into calls to this one.
