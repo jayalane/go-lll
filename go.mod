@@ -1,6 +1,6 @@
 module github.com/jayalane/go-lll
 
-go 1.22.4
+go 1.22.5
 
 require github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 
